@@ -4,6 +4,7 @@ const { protect, authorize } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const {
     getProducts,
+    searchByBarcode,
     getProduct,
     createProduct,
     updateProduct,
@@ -13,6 +14,9 @@ const {
 router.route('/')
     .get(getProducts)
     .post(protect, authorize('vendor', 'admin'), upload.array('images', 5), createProduct);
+
+// Barcode search route (must come before /:id)
+router.get('/barcode/:barcode', searchByBarcode);
 
 router.route('/:id')
     .get(getProduct)

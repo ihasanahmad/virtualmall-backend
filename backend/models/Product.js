@@ -15,6 +15,12 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide product description']
     },
+    barcode: {
+        type: String,
+        unique: true,
+        sparse: true, // Allows multiple null values
+        trim: true
+    },
     brand: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Brand',

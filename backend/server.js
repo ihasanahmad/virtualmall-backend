@@ -54,6 +54,9 @@ const productRoutes = require('./routes/product');
 const categoryRoutes = require('./routes/category');
 const brandRoutes = require('./routes/brand');
 const orderRoutes = require('./routes/order');
+const reviewRoutes = require('./routes/review');
+const wishlistRoutes = require('./routes/wishlist');
+const couponRoutes = require('./routes/coupon');
 
 // Mount routes
 app.use('/api/auth', authRouter);
@@ -62,6 +65,9 @@ app.use('/api/categories', categoryRouter);
 app.use('/api/brands', brandRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Root route
 app.get('/', (req, res) => {

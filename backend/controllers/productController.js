@@ -87,6 +87,36 @@ exports.getProducts = async (req, res) => {
     }
 };
 
+// @desc    Search product by barcode
+// @route   GET /api/products/barcode/:barcode
+// @access  Public
+exports.searchByBarcode = async (req, res) => {
+    try {
+        const { barcode } = req.params;
+
+        const product = await Product.findOne({ barcode })
+            .populate('brand', 'name logo slug')
+            .populate('category', 'name slug');
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found with this barcode'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: product
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 // @desc    Get single product
 // @route   GET /api/products/:id
 // @access  Public
