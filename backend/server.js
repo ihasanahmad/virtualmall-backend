@@ -7,23 +7,18 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const connectDB = require('./config/db');
 
-
 // Load env vars
 dotenv.config();
-
 
 // Connect to database
 connectDB();
 
-
 const app = express();
 
-
 // Security middleware
-app.use(helmet()); // Set security headers
-app.use(xss()); // Prevent XSS attacks
-app.use(mongoSanitize()); // Prevent NoSQL injection
-
+app.use(helmet());
+app.use(xss());
+app.use(mongoSanitize());
 
 // CORS configuration
 const corsOptions = {
@@ -38,3 +33,88 @@ const corsOptions = {
     ],
     credentials: true,
     optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Body parser
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 100,
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const productRoutes = require('./routes/product');
+const categoryRoutes = require('./routes/category');
+const brandRoutes = require('./routes/brand');
+const orderRoutes = require('./routes/order');
+const reviewRoutes = require('./routes/review');
+const wishlistRoutes = require('./routes/wishlist');
+const couponRoutes = require('./routes/coupon');
+
+// Mount routes
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/coupons', couponRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Virtual Mega Mall API',
+        version: '1.0.0',
+        endpoints: {
+            auth: '/api/auth',
+            products: '/api/products',
+            categories: '/api/categories',
+            brands: '/api/brands',
+            orders: '/api/orders',
+            reviews: '/api/reviews',
+            wishlist: '/api/wishlist',
+            coupons: '/api/coupons'
+        }
+    });
+});
+
+// 404 Handler
+app.use((req, res, next) => {
+    res.status(404).json({
+        success: false,
+        message: 'Route not found'
+    });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.statusCode || 500).json({
+        success: false,
+        message: err.message || 'Server Error',
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+});
+
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+    console.log(`Error: ${err.message}`);
+    server.close(() => process.exit(1));
+});
+
+module.exports = app;
