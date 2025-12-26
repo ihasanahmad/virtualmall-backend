@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules/
 .env
 .DS_Store
@@ -11,3 +12,18 @@ coverage/
 *.swp
 *.swo
 *~
+=======
+# Dependencies
+node_modules/
+
+# Environment variables (contains secrets!)
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+>>>>>>> 134977d696345a8dbdc013e4272b73004a3a1e63
