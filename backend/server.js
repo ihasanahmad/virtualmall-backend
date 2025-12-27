@@ -29,7 +29,12 @@ const corsOptions = {
         'http://localhost:3000',
         'http://localhost:3001',
         'http://localhost:3002',
-        'https://virtualmegamall.vercel.app'
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'https://virtualmegamall.vercel.app',
+        'https://virtualmall-admin.vercel.app',
+        'https://virtualmall-vendor.vercel.app'
     ],
     credentials: true,
     optionsSuccessStatus: 200
@@ -86,13 +91,9 @@ app.get('/', (req, res) => {
             orders: '/api/orders',
             reviews: '/api/reviews',
             wishlist: '/api/wishlist',
-<<<<<<< HEAD
             coupons: '/api/coupons',
             payments: '/api/payments',
             analytics: '/api/analytics'
-=======
-            coupons: '/api/coupons'
->>>>>>> 216fd33bef901a200884377f3fdbe3f0762aa727
         }
     });
 });
@@ -118,7 +119,6 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
-<<<<<<< HEAD
     console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║                                                       ║
@@ -136,9 +136,6 @@ const server = app.listen(PORT, () => {
     // Initialize Socket.io
     const socketHandler = require('./socket/socketHandler');
     socketHandler.init(server);
-=======
-    console.log(`Server running on port ${PORT}`);
->>>>>>> 216fd33bef901a200884377f3fdbe3f0762aa727
 });
 
 // Handle unhandled promise rejections
