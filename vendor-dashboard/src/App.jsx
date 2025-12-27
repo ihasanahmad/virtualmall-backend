@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import VendorLayout from './components/VendorLayout';
@@ -8,6 +10,8 @@ import BrandRegistration from './pages/BrandRegistration';
 import Dashboard from './pages/Dashboard';
 import ProductList from './pages/ProductList';
 import AddProduct from './pages/AddProduct';
+import Analytics from './pages/Analytics';
+import Orders from './pages/Orders';
 
 // Create dark theme matching the Virtual Mega Mall brand
 const darkTheme = createTheme({
@@ -99,13 +103,19 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="products" element={<ProductList />} />
               <Route path="products/add" element={<AddProduct />} />
-              <Route path="orders" element={<div style={{ color: '#fff' }}>Orders (Coming Soon)</div>} />
-              <Route path="analytics" element={<div style={{ color: '#fff' }}>Analytics (Coming Soon)</div>} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="analytics" element={<Analytics />} />
               <Route path="store" element={<div style={{ color: '#fff' }}>Store Settings (Coming Soon)</div>} />
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          theme="dark"
+        />
       </AuthProvider>
     </ThemeProvider>
   );

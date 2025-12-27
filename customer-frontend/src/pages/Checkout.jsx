@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import CouponInput from '../components/CouponInput';
+import StripePaymentForm from '../components/Payment/StripePaymentForm';
+import JazzCashForm from '../components/Payment/JazzCashForm';
+import EasyPaisaForm from '../components/Payment/EasyPaisaForm';
 import {
     Container,
     Box,
@@ -51,7 +54,8 @@ const Checkout = () => {
     });
 
     // Payment state
-    const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [paymentMethod, setPaymentMethod] = useState('stripe');
+    const [createdOrderId, setCreatedOrderId] = useState(null);
 
     const handleNext = () => {
         if (activeStep === 0 && !validateAddress()) {
@@ -83,7 +87,8 @@ const Checkout = () => {
                     price: item.price
                 })),
                 shippingAddress: address,
-                paymentMethod
+                paymentMethod,
+                paymentStatus: paymentMethod === 'cod' ? 'pending' : 'awaiting_payment'
             };
 
             const token = localStorage.getItem('token');
@@ -97,13 +102,20 @@ const Checkout = () => {
                 }
             );
 
-            // Clear cart and redirect to success
-            clearCart();
-            navigate(`/orders/${response.data.data._id}`, {
-                state: { orderPlaced: true }
-            });
+            const orderId = response.data.data._id;
+            setCreatedOrderId(orderId);
+
+            // If COD, clear cart and redirect
+            if (paymentMethod === 'cod') {
+                clearCart();
+                navigate(`/payment/success?orderId=${orderId}`);
+            }
+            // For other payment methods, move to next step to show payment form
+            else {
+                setActiveStep(2);
+            }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to place order. Please try again.');
+            setError(err.response?.data?.message || 'Failed to create order. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -236,7 +248,7 @@ const Checkout = () => {
                                                 Cash on Delivery (COD)
                                             </Typography>
                                             <Typography variant="caption" sx={{ color: '#999' }}>
-                                                Pay when your order is delivered
+                                                Pay when you receive your order
                                             </Typography>
                                         </Box>
                                     }
@@ -256,7 +268,6 @@ const Checkout = () => {
                                         </Box>
                                     }
                                     sx={{ mb: 2, p: 2, border: '1px solid #d4af37', borderRadius: 2 }}
-                                    disabled
                                 />
                                 <FormControlLabel
                                     value="easypaisa"
@@ -272,10 +283,9 @@ const Checkout = () => {
                                         </Box>
                                     }
                                     sx={{ mb: 2, p: 2, border: '1px solid #d4af37', borderRadius: 2 }}
-                                    disabled
                                 />
                                 <FormControlLabel
-                                    value="card"
+                                    value="stripe"
                                     control={<Radio sx={{ color: '#d4af37', '&.Mui-checked': { color: '#d4af37' } }} />}
                                     label={
                                         <Box>
@@ -288,13 +298,9 @@ const Checkout = () => {
                                         </Box>
                                     }
                                     sx={{ p: 2, border: '1px solid #d4af37', borderRadius: 2 }}
-                                    disabled
                                 />
                             </RadioGroup>
                         </FormControl>
-                        <Alert severity="info" sx={{ mt: 3 }}>
-                            Online payment methods are coming soon! Currently only COD is available.
-                        </Alert>
                     </Box>
                 );
 
@@ -380,6 +386,48 @@ const Checkout = () => {
                                 Rs. {total.toLocaleString()}
                             </Typography>
                         </Box>
+
+                        {/* Payment Form Section */}
+                        {createdOrderId && paymentMethod !== 'cod' && (
+                            <>
+                                <Divider sx={{ my: 3, backgroundColor: '#d4af37' }} />
+                                <Typography variant="h6" sx={{ color: '#d4af37', mb: 3 }}>
+                                    Complete Payment
+                                </Typography>
+
+                                {paymentMethod === 'stripe' && (
+                                    <StripePaymentForm
+                                        orderId={createdOrderId}
+                                        amount={total}
+                                        onSuccess={() => {
+                                            clearCart();
+                                            navigate(`/payment/success?orderId=${createdOrderId}`);
+                                        }}
+                                        onError={(error) => {
+                                            navigate(`/payment/failure?message=${error.message}`);
+                                        }}
+                                    />
+                                )}
+
+                                {paymentMethod === 'jazzcash' && (
+                                    <JazzCashForm
+                                        orderId={createdOrderId}
+                                        amount={total}
+                                        onSuccess={() => clearCart()}
+                                        onError={(error) => setError(error.message)}
+                                    />
+                                )}
+
+                                {paymentMethod === 'easypaisa' && (
+                                    <EasyPaisaForm
+                                        orderId={createdOrderId}
+                                        amount={total}
+                                        onSuccess={() => clearCart()}
+                                        onError={(error) => setError(error.message)}
+                                    />
+                                )}
+                            </>
+                        )}
                     </Box>
                 );
 
