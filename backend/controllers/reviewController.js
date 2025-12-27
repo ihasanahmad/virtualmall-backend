@@ -223,11 +223,3 @@ async function updateProductRating(productId) {
         });
     }
 }
-
-module.exports = {
-    createReview,
-    getProductReviews,
-    updateReview,
-    deleteReview,
-    markHelpful
-};

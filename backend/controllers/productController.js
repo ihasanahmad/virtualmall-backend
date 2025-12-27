@@ -117,6 +117,33 @@ exports.searchByBarcode = async (req, res) => {
     }
 };
 
+// @desc    Get search suggestions
+// @route   GET /api/products/search/suggestions
+// @access  Public
+exports.getSearchSuggestions = async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || q.length < 2) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        const suggestions = await Product.find({
+            $or: [
+                { name: { $regex: q, $options: 'i' } },
+                { description: { $regex: q, $options: 'i' } }
+            ],
+            isActive: true
+        })
+            .select('name _id')
+            .limit(10);
+
+        res.status(200).json({ success: true, data: suggestions });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // @desc    Get single product
 // @route   GET /api/products/:id
 // @access  Public

@@ -57,6 +57,8 @@ const orderRoutes = require('./routes/order');
 const reviewRoutes = require('./routes/review');
 const wishlistRoutes = require('./routes/wishlist');
 const couponRoutes = require('./routes/coupon');
+const paymentRoutes = require('./routes/payment');
+const analyticsRoutes = require('./routes/analytics');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -67,6 +69,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -82,7 +86,9 @@ app.get('/', (req, res) => {
             orders: '/api/orders',
             reviews: '/api/reviews',
             wishlist: '/api/wishlist',
-            coupons: '/api/coupons'
+            coupons: '/api/coupons',
+            payments: '/api/payments',
+            analytics: '/api/analytics'
         }
     });
 });
@@ -122,6 +128,10 @@ const server = app.listen(PORT, () => {
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
   `);
+
+    // Initialize Socket.io
+    const socketHandler = require('./socket/socketHandler');
+    socketHandler.init(server);
 });
 
 // Handle unhandled promise rejections

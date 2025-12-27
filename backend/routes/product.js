@@ -8,7 +8,8 @@ const {
     getProduct,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getSearchSuggestions
 } = require('../controllers/productController');
 
 router.route('/')
@@ -17,6 +18,9 @@ router.route('/')
 
 // Barcode search route (must come before /:id)
 router.get('/barcode/:barcode', searchByBarcode);
+
+// Search suggestions route
+router.get('/search/suggestions', getSearchSuggestions);
 
 router.route('/:id')
     .get(getProduct)
